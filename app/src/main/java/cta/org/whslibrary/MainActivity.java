@@ -17,6 +17,7 @@
 package cta.org.whslibrary;
 
 import android.content.DialogInterface;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -31,6 +32,19 @@ import cta.org.whslibrary.utils.HttpUtils;
 
 public class MainActivity extends AppCompatActivity {
 
+    EditText nametxt;
+    EditText emailtxt;
+    EditText mobiletxt;
+    EditText studenttxt;
+
+    private void resetFields(){
+        nametxt.setText("");
+        emailtxt.setText("");
+        mobiletxt.setText("");
+        studenttxt.setText("");
+        nametxt.requestFocus();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,30 +53,26 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final EditText nametxt = findViewById(R.id.editText);
-                final EditText emailtxt = findViewById(R.id.editText2);
-                final EditText mobiletxt = findViewById(R.id.editText3);
-                final EditText studenttxt = findViewById(R.id.editText4);
+                nametxt = findViewById(R.id.editText);
+                emailtxt = findViewById(R.id.editText2);
+                mobiletxt = findViewById(R.id.editText3);
+                studenttxt = findViewById(R.id.editText4);
                 String payload = HttpUtils.generatePayload(nametxt.getText().toString(), emailtxt.getText().toString(), mobiletxt.getText().toString(), studenttxt.getText().toString());
                 try {
                     HttpUtils.post(MainActivity.this,payload, new JsonHttpResponseHandler(){
                         @Override
-                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                        public void onSuccess(int statusCode, Header[] headers, @NonNull JSONObject response) {
                             super.onSuccess(statusCode, headers, response);
                             AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
                             alertDialog.setTitle("Member Added " + statusCode);
                             alertDialog.setMessage(response.toString());
                             alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
                                     new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int which) {
+                                        public void onClick(@NonNull DialogInterface dialog, int which) {
                                             dialog.dismiss();
                                         }
                                     });
-                            nametxt.setText("");
-                            emailtxt.setText("");
-                            mobiletxt.setText("");
-                            studenttxt.setText("");
-                            nametxt.requestFocus();
+                            resetFields();
                             alertDialog.show();
 
                         }
@@ -74,10 +84,11 @@ public class MainActivity extends AppCompatActivity {
                             alertDialog.setMessage("failed");
                             alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
                                     new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int which) {
+                                        public void onClick(@NonNull DialogInterface dialog, int which) {
                                             dialog.dismiss();
                                         }
                                     });
+                            resetFields();
                             alertDialog.show();
                         }
                     });
@@ -87,10 +98,11 @@ public class MainActivity extends AppCompatActivity {
                     alertDialog.setMessage("Something went wrong!");
                     alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
                             new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
+                                public void onClick(@NonNull DialogInterface dialog, int which) {
                                     dialog.dismiss();
                                 }
                             });
+                    resetFields();
                     alertDialog.show();
                 }
             }
