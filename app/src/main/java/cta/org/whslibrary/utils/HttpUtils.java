@@ -21,22 +21,30 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import cz.msebera.android.httpclient.entity.StringEntity;
 import cz.msebera.android.httpclient.message.BasicHeader;
 import cz.msebera.android.httpclient.protocol.HTTP;
 
 public class HttpUtils {
-    private static final String BASE_URL = "http://172.18.0.1:8280/members/member";
+    private static final String BASE_URL = "http://172.18.0.1:8280/";
     private static AsyncHttpClient client = new AsyncHttpClient();
     public static void post(Context context, String payload, AsyncHttpResponseHandler responseHandler) throws Exception {
             StringEntity entity = new StringEntity(payload);
             entity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
-            client.post(context, BASE_URL, entity, "application/json", responseHandler);
+            client.post(context, BASE_URL+"members/member", entity, "application/json", responseHandler);
     }
 
-    public static void get(Context context, String payload, AsyncHttpResponseHandler responseHandler) throws Exception{
-        String endpoint = BASE_URL+"/"+URLEncoder.encode(payload,"UTF-8").replace("+", "%20");
+    public static void getMember(Context context, String payload, AsyncHttpResponseHandler responseHandler) throws Exception{
+        String endpoint = BASE_URL+"members/member/"+URLEncoder.encode(payload,"UTF-8").replace("+", "%20");
+        client.setURLEncodingEnabled(false);
+        client.get(context, endpoint ,responseHandler);
+
+    }
+    public static void getBook(Context context, String payload, AsyncHttpResponseHandler responseHandler) throws Exception{
+        String endpoint = BASE_URL+"books/book/"+payload;
         client.setURLEncodingEnabled(false);
         client.get(context, endpoint ,responseHandler);
 
@@ -44,5 +52,15 @@ public class HttpUtils {
 
     public static String generatePayload(String fullName, String email, String mobile, String student){
         return "{\"member\": {\"Name\": \""+fullName+"\",\"Email\": \""+email+"\",\"Mobile\": \""+mobile+"\",\"Status\": \"Active\",\"Students\": \""+student+"\"}}";
+    }
+
+    public static String generateLendingPayload(String bookid, String memberid){
+        Calendar c = Calendar.getInstance();
+        SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
+        String lendingDate = df.format(c.getTime());
+        c.add(Calendar.WEEK_OF_MONTH,2);
+        String returndate= df.format(c.getTime());;
+        return "{\"LendBook\": {\"BookID\": \""+bookid+"\",\"MemberId\": \""+memberid+"\",\"LendingDate\": \""+lendingDate+"\",\"Status\": \"Checked Out\",\"ReturnDate\": \""+returndate+"\"}}";
+
     }
 }

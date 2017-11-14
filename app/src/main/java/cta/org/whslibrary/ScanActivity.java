@@ -34,6 +34,7 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONObject;
 
+import cta.org.whslibrary.dao.Book;
 import cta.org.whslibrary.dao.Member;
 import cta.org.whslibrary.utils.HttpUtils;
 import cz.msebera.android.httpclient.Header;
@@ -53,6 +54,7 @@ public class ScanActivity extends AppCompatActivity {
 
 
     private Member member;
+    private Book book;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +66,7 @@ public class ScanActivity extends AppCompatActivity {
 
         txtvbar1 = findViewById(R.id.txtvbar1);
         btnSave = findViewById(R.id.btnSave);
+        btnSave.setEnabled(false);
 
 
         btnScan1.setOnClickListener(new View.OnClickListener() {
@@ -87,7 +90,7 @@ public class ScanActivity extends AppCompatActivity {
                     if (txtUserNumber.getText()!=null) {
                         String formattedNumber = PhoneNumberUtils.formatNumber(txtUserNumber.getText().toString(),"US");
 
-                        HttpUtils.get(ScanActivity.this,formattedNumber,new JsonHttpResponseHandler(){
+                        HttpUtils.getMember(ScanActivity.this,formattedNumber,new JsonHttpResponseHandler(){
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                                 super.onSuccess(statusCode, headers, response);
@@ -147,11 +150,39 @@ public class ScanActivity extends AppCompatActivity {
             if (re!=null) {
                 Log.d("code", re);
                 txtvbar1.setText(re);
+                try {
+                    HttpUtils.getBook(ScanActivity.this, re, new JsonHttpResponseHandler(){
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                            super.onSuccess(statusCode, headers, response);
+                            JSONObject records=null;
+                            try {
+                                records = response.getJSONObject("queryResponse").getJSONObject("result").getJSONObject("records");
+                                if (records.getString("type").equals("Book__c")) {
+                                    book = new Book(records.getString("Id"), records.getString("Name"),records.getString("Book_Number__c"),records.getString("Book_Name_in_Tamil__c"),records.getString("Status__c"));
+                                    member = new Member(records.getString("Id"),records.getString("Name"),records.getString("Name__c"),records.getString("Email_Id__c"),records.getString("Contact_Number__c"),records.getString("Status__c"),records.getString("Students_Name__c"));
+                                    txtVUserFullName.setText(member.getFullName());
+                                }
+                            }catch (Exception ex){
+
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                            super.onFailure(statusCode, headers, throwable, errorResponse);
+                        }
+                    });
+                }catch (Exception ex){
+
+                }
+
             }
         }
     }
 
     public void clearAll(){
         member=null;
+        book = null;
     }
 }
