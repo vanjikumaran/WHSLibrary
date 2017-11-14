@@ -16,38 +16,129 @@
 
 package cta.org.whslibrary;
 
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.loopj.android.http.JsonHttpResponseHandler;
+
+import org.json.JSONObject;
+
+import cta.org.whslibrary.dao.Member;
+import cta.org.whslibrary.utils.HttpUtils;
+import cz.msebera.android.httpclient.Header;
 
 
 public class ScanActivity extends AppCompatActivity {
 
-    private Button mButton;
-    private TextView txtView;
+    private Button btnScan1;
+    private Button btnFind;
+    private Button btnSave;
+
+
+    private TextView txtVUserFullName;
+    private TextView txtvbar1;
+
+    private EditText txtUserNumber;
+
+
+    private Member member;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan);
-        mButton = (Button) findViewById(R.id.button3);
-        txtView = findViewById(R.id.textView);
 
-        mButton.setOnClickListener(new View.OnClickListener() {
+        btnScan1 = findViewById(R.id.btnScan1);
+        btnScan1.setEnabled(false);
+
+        txtvbar1 = findViewById(R.id.txtvbar1);
+        btnSave = findViewById(R.id.btnSave);
+
+
+        btnScan1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 IntentIntegrator integrator = new IntentIntegrator(ScanActivity.this);
                 integrator.initiateScan();
             }
         });
+
+        //Find Member
+        btnFind = findViewById(R.id.btnFind);
+        txtVUserFullName = findViewById(R.id.txtVUserFullName);
+        txtUserNumber = findViewById(R.id.txtUserNumber);
+
+        btnFind.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+
+                    if (txtUserNumber.getText()!=null) {
+                        String formattedNumber = PhoneNumberUtils.formatNumber(txtUserNumber.getText().toString(),"US");
+
+                        HttpUtils.get(ScanActivity.this,formattedNumber,new JsonHttpResponseHandler(){
+                            @Override
+                            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                super.onSuccess(statusCode, headers, response);
+                                JSONObject records=null;
+                                try {
+                                     records = response.getJSONObject("queryResponse").getJSONObject("result").getJSONObject("records");
+                                    if (records.getString("type").equals("Member__c")) {
+                                        member = new Member(records.getString("Id"),records.getString("Name"),records.getString("Name__c"),records.getString("Email_Id__c"),records.getString("Contact_Number__c"),records.getString("Status__c"),records.getString("Students_Name__c"));
+                                        txtVUserFullName.setText(member.getFullName());
+                                        btnScan1.setEnabled(true);
+                                    }
+                                }catch (Exception ex){
+
+                                }
+                            }
+                            @Override
+                            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                                super.onFailure(statusCode, headers, responseString, throwable);
+                                AlertDialog alertDialog = new AlertDialog.Builder(ScanActivity.this).create();
+                                alertDialog.setTitle("Failed" + statusCode);
+                                alertDialog.setMessage("failed");
+                                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        });
+                                alertDialog.show();
+                            }
+
+                        });
+                    }
+
+
+                }catch (Exception ex){
+                    AlertDialog alertDialog = new AlertDialog.Builder(ScanActivity.this).create();
+                    alertDialog.setTitle("Oppssssss...");
+                    alertDialog.setMessage("Something went wrong!");
+                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                    alertDialog.show();
+                }
+            }
+        });
+
+
+
     }
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
@@ -55,9 +146,12 @@ public class ScanActivity extends AppCompatActivity {
             String re = scanResult.getContents();
             if (re!=null) {
                 Log.d("code", re);
-                txtView.setText(re);
+                txtvbar1.setText(re);
             }
         }
-        // else continue with any other code you need in the method
+    }
+
+    public void clearAll(){
+        member=null;
     }
 }

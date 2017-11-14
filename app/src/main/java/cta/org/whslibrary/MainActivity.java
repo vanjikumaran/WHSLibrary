@@ -20,6 +20,7 @@ import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telephony.PhoneNumberUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -43,56 +44,63 @@ public class MainActivity extends AppCompatActivity {
                 final EditText emailtxt = findViewById(R.id.editText2);
                 final EditText mobiletxt = findViewById(R.id.editText3);
                 final EditText studenttxt = findViewById(R.id.editText4);
-                String payload = HttpUtils.generatePayload(nametxt.getText().toString(), emailtxt.getText().toString(), mobiletxt.getText().toString(), studenttxt.getText().toString());
-                try {
-                    HttpUtils.post(MainActivity.this,payload, new JsonHttpResponseHandler(){
-                        @Override
-                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                            super.onSuccess(statusCode, headers, response);
-                            AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-                            alertDialog.setTitle("Member Added " + statusCode);
-                            alertDialog.setMessage(response.toString());
-                            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.dismiss();
-                                        }
-                                    });
-                            nametxt.setText("");
-                            emailtxt.setText("");
-                            mobiletxt.setText("");
-                            studenttxt.setText("");
-                            nametxt.requestFocus();
-                            alertDialog.show();
 
-                        }
-                        @Override
-                        public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                            super.onFailure(statusCode, headers, responseString, throwable);
-                            AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-                            alertDialog.setTitle("Failed" + statusCode);
-                            alertDialog.setMessage("failed");
-                            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.dismiss();
-                                        }
-                                    });
-                            alertDialog.show();
-                        }
-                    });
-                }catch (Exception e){
-                    AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-                    alertDialog.setTitle("Oppssssss...");
-                    alertDialog.setMessage("Something went wrong!");
-                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                }
-                            });
-                    alertDialog.show();
+                if (nametxt.getText()!=null && emailtxt.getText()!=null && mobiletxt.getText()!=null&& studenttxt.getText()!=null ) {
+                    String formattedNumber = PhoneNumberUtils.formatNumber(mobiletxt.getText().toString(),"US");
+                    String payload = HttpUtils.generatePayload(nametxt.getText().toString(), emailtxt.getText().toString(), formattedNumber, studenttxt.getText().toString());
+                    try {
+                        HttpUtils.post(MainActivity.this,payload, new JsonHttpResponseHandler(){
+                            @Override
+                            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                super.onSuccess(statusCode, headers, response);
+                                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                                alertDialog.setTitle("Member Added " + statusCode);
+                                alertDialog.setMessage(response.toString());
+                                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        });
+                                nametxt.setText("");
+                                emailtxt.setText("");
+                                mobiletxt.setText("");
+                                studenttxt.setText("");
+                                nametxt.requestFocus();
+                                alertDialog.show();
+
+                            }
+                            @Override
+                            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                                super.onFailure(statusCode, headers, responseString, throwable);
+                                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                                alertDialog.setTitle("Failed" + statusCode);
+                                alertDialog.setMessage("failed");
+                                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        });
+                                alertDialog.show();
+                            }
+                        });
+                    }catch (Exception e){
+                        AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                        alertDialog.setTitle("Oppssssss...");
+                        alertDialog.setMessage("Something went wrong!");
+                        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                });
+                        alertDialog.show();
+                    }
                 }
+
+
+
             }
         });
     }

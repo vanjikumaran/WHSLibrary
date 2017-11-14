@@ -25,11 +25,11 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:layout_editor_absoluteX="73dp"
-        tools:layout_editor_absoluteY="131dp">
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp">
 
         <Button
-            android:id="@+id/button3"
+            android:id="@+id/btnScan1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
@@ -38,18 +38,54 @@
             android:layout_marginEnd="23dp"
             android:layout_marginRight="23dp"
             android:layout_marginTop="136dp"
-            android:text="Scan" />
+            android:text=" Scan 1" />
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/txtvbar1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/txtVUserFullName"
+            android:layout_alignStart="@+id/txtVUserFullName"
+            android:layout_alignTop="@+id/btnScan1" />
+
+        <EditText
+            android:id="@+id/txtUserNumber"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_marginLeft="61dp"
-            android:layout_marginStart="61dp"
-            android:layout_marginTop="43dp"
-            android:text="TextView" />
+            android:layout_marginLeft="12dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="21dp"
+            android:ems="10"
+            android:inputType="phone"
+            android:maxLength="10" />
+
+        <Button
+            android:id="@+id/btnFind"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/btnScan1"
+            android:layout_alignStart="@+id/btnScan1"
+            android:layout_alignTop="@+id/txtUserNumber"
+            android:text="Find" />
+
+        <TextView
+            android:id="@+id/txtVUserFullName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/txtUserNumber"
+            android:layout_alignStart="@+id/txtUserNumber"
+            android:layout_below="@+id/btnFind"
+            android:layout_marginTop="16dp" />
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/btnScan1"
+            android:layout_alignTop="@+id/txtVUserFullName"
+            android:text="Save" />
     </RelativeLayout>
 </android.support.constraint.ConstraintLayout>
