@@ -23,6 +23,56 @@ package cta.org.whslibrary.dao;
 public class Book {
     private String id;
     private String bookName;
-    private String
+    private String bookNumber;
+    private String bookTittle;
+    private String bookStatus;
 
+
+    public Book(String id, String bookName, String bookNumber, String bookTittle, String bookStatus) {
+        this.id = id;
+        this.bookName = bookName;
+        this.bookNumber = bookNumber;
+        this.bookTittle = bookTittle;
+        this.bookStatus = bookStatus;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getBookName() {
+        return bookName;
+    }
+
+    public void setBookName(String bookName) {
+        this.bookName = bookName;
+    }
+
+    public String getBookNumber() {
+        return bookNumber;
+    }
+
+    public void setBookNumber(String bookNumber) {
+        this.bookNumber = bookNumber;
+    }
+
+    public String getBookTittle() {
+        return bookTittle;
+    }
+
+    public void setBookTittle(String bookTittle) {
+        this.bookTittle = bookTittle;
+    }
+
+    public String getBookStatus() {
+        return bookStatus;
+    }
+
+    public void setBookStatus(String bookStatus) {
+        this.bookStatus = bookStatus;
+    }
 }
