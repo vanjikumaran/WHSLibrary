@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cta.org.whslibrary.dao;
+package cta.org.whslibrary.dto;
 
 /**
  * Created by vanjikumaran on 11/14/17.

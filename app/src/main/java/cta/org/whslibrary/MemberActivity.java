@@ -30,12 +30,12 @@ import cz.msebera.android.httpclient.Header;
 import org.json.JSONObject;
 import cta.org.whslibrary.utils.HttpUtils;
 
-public class MainActivity extends AppCompatActivity {
+public class MemberActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_member);
         final Button button = findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -49,11 +49,11 @@ public class MainActivity extends AppCompatActivity {
                     String formattedNumber = PhoneNumberUtils.formatNumber(mobiletxt.getText().toString(),"US");
                     String payload = HttpUtils.generatePayload(nametxt.getText().toString(), emailtxt.getText().toString(), formattedNumber, studenttxt.getText().toString());
                     try {
-                        HttpUtils.post(MainActivity.this,payload, new JsonHttpResponseHandler(){
+                        HttpUtils.postMember(MemberActivity.this,payload, new JsonHttpResponseHandler(){
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                                 super.onSuccess(statusCode, headers, response);
-                                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                                AlertDialog alertDialog = new AlertDialog.Builder(MemberActivity.this).create();
                                 alertDialog.setTitle("Member Added " + statusCode);
                                 alertDialog.setMessage(response.toString());
                                 alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                                 super.onFailure(statusCode, headers, responseString, throwable);
-                                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                                AlertDialog alertDialog = new AlertDialog.Builder(MemberActivity.this).create();
                                 alertDialog.setTitle("Failed" + statusCode);
                                 alertDialog.setMessage("failed");
                                 alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         });
                     }catch (Exception e){
-                        AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                        AlertDialog alertDialog = new AlertDialog.Builder(MemberActivity.this).create();
                         alertDialog.setTitle("Oppssssss...");
                         alertDialog.setMessage("Something went wrong!");
                         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",

@@ -34,8 +34,8 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONObject;
 
-import cta.org.whslibrary.dao.Book;
-import cta.org.whslibrary.dao.Member;
+import cta.org.whslibrary.dto.Book;
+import cta.org.whslibrary.dto.Member;
 import cta.org.whslibrary.utils.HttpUtils;
 import cz.msebera.android.httpclient.Header;
 
@@ -66,14 +66,105 @@ public class ScanActivity extends AppCompatActivity {
 
         txtvbar1 = findViewById(R.id.txtvbar1);
         btnSave = findViewById(R.id.btnSave);
-        btnSave.setEnabled(false);
+        btnSave.setEnabled(true);
 
-
+        //Scan Book
         btnScan1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 IntentIntegrator integrator = new IntentIntegrator(ScanActivity.this);
                 integrator.initiateScan();
+            }
+        });
+
+        //Save Checkout
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (book.getId() != null && member.getId() != null) {
+                    String payload = HttpUtils.generateLendingPayload(book.getId(), member.getId());
+                    try {
+                        HttpUtils.postLending(ScanActivity.this, payload, new JsonHttpResponseHandler(){
+                            @Override
+                            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                super.onSuccess(statusCode, headers, response);
+                                AlertDialog alertDialog = new AlertDialog.Builder(ScanActivity.this).create();
+                                alertDialog.setTitle("Member Added " + statusCode);
+                                alertDialog.setMessage(response.toString());
+                                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        });
+                                alertDialog.show();
+
+                            }
+                            @Override
+                            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                                super.onFailure(statusCode, headers, responseString, throwable);
+                                AlertDialog alertDialog = new AlertDialog.Builder(ScanActivity.this).create();
+                                alertDialog.setTitle("Failed" + statusCode);
+                                alertDialog.setMessage("failed");
+                                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        });
+                                alertDialog.show();
+                            }
+                        });
+
+
+//                        HttpUtils.postLending(ScanActivity.this, payload, new JsonHttpResponseHandler() {
+//                            @Override
+//                            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+//                                super.onSuccess(statusCode, headers, response);
+//                                AlertDialog alertDialog = new AlertDialog.Builder(ScanActivity.this).create();
+//                                alertDialog.setTitle("Lending Added " + statusCode);
+//                                alertDialog.setMessage(response.toString());
+//                                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+//                                        new DialogInterface.OnClickListener() {
+//                                            public void onClick(DialogInterface dialog, int which) {
+//                                                dialog.dismiss();
+//                                            }
+//                                        });
+//                                alertDialog.show();
+//
+//                            }
+//
+//                            @Override
+//                            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+//                                super.onFailure(statusCode, headers, responseString, throwable);
+//                                AlertDialog alertDialog = new AlertDialog.Builder(ScanActivity.this).create();
+//                                alertDialog.setTitle("Failed" + statusCode);
+//                                alertDialog.setMessage("failed");
+//                                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+//                                        new DialogInterface.OnClickListener() {
+//                                            public void onClick(DialogInterface dialog, int which) {
+//                                                dialog.dismiss();
+//                                            }
+//                                        });
+//                                alertDialog.show();
+//                            }
+//                        });
+
+                    } catch (Exception ex) {
+                        AlertDialog alertDialog = new AlertDialog.Builder(ScanActivity.this).create();
+                        alertDialog.setTitle("Oppssssss...");
+                        alertDialog.setMessage("Something went wrong!");
+                        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                });
+                        alertDialog.show();
+                    }
+
+
+                }
             }
         });
 
@@ -87,25 +178,35 @@ public class ScanActivity extends AppCompatActivity {
             public void onClick(View v) {
                 try {
 
-                    if (txtUserNumber.getText()!=null) {
-                        String formattedNumber = PhoneNumberUtils.formatNumber(txtUserNumber.getText().toString(),"US");
+                    if (txtUserNumber.getText() != null) {
+                        String formattedNumber = PhoneNumberUtils.formatNumber(txtUserNumber.getText().toString(), "US");
 
-                        HttpUtils.getMember(ScanActivity.this,formattedNumber,new JsonHttpResponseHandler(){
+                        HttpUtils.getMember(ScanActivity.this, formattedNumber, new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                                 super.onSuccess(statusCode, headers, response);
-                                JSONObject records=null;
+                                JSONObject records;
                                 try {
-                                     records = response.getJSONObject("queryResponse").getJSONObject("result").getJSONObject("records");
+                                    records = response.getJSONObject("queryResponse").getJSONObject("result").getJSONObject("records");
                                     if (records.getString("type").equals("Member__c")) {
-                                        member = new Member(records.getString("Id"),records.getString("Name"),records.getString("Name__c"),records.getString("Email_Id__c"),records.getString("Contact_Number__c"),records.getString("Status__c"),records.getString("Students_Name__c"));
+                                        member = new Member(records.getString("Id"), records.getString("Name"), records.getString("Name__c"), records.getString("Email_Id__c"), records.getString("Contact_Number__c"), records.getString("Status__c"), records.getString("Students_Name__c"));
                                         txtVUserFullName.setText(member.getFullName());
                                         btnScan1.setEnabled(true);
                                     }
-                                }catch (Exception ex){
-
+                                } catch (Exception ex) {
+                                    AlertDialog alertDialog = new AlertDialog.Builder(ScanActivity.this).create();
+                                    alertDialog.setTitle("Oppssssss...");
+                                    alertDialog.setMessage("Something went wrong!");
+                                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                                            new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    dialog.dismiss();
+                                                }
+                                            });
+                                    alertDialog.show();
                                 }
                             }
+
                             @Override
                             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                                 super.onFailure(statusCode, headers, responseString, throwable);
@@ -125,7 +226,7 @@ public class ScanActivity extends AppCompatActivity {
                     }
 
 
-                }catch (Exception ex){
+                } catch (Exception ex) {
                     AlertDialog alertDialog = new AlertDialog.Builder(ScanActivity.this).create();
                     alertDialog.setTitle("Oppssssss...");
                     alertDialog.setMessage("Something went wrong!");
@@ -139,50 +240,86 @@ public class ScanActivity extends AppCompatActivity {
                 }
             }
         });
-
-
-
     }
+
+    /**
+     * Intent activity to Scan the image
+     * @param requestCode
+     * @param resultCode
+     * @param intent
+     */
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
         if (scanResult != null) {
             String re = scanResult.getContents();
-            if (re!=null) {
+            if (re != null) {
                 Log.d("code", re);
                 txtvbar1.setText(re);
                 try {
-                    HttpUtils.getBook(ScanActivity.this, re, new JsonHttpResponseHandler(){
+                    HttpUtils.getBook(ScanActivity.this, re, new JsonHttpResponseHandler() {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                             super.onSuccess(statusCode, headers, response);
-                            JSONObject records=null;
+                            JSONObject records;
                             try {
                                 records = response.getJSONObject("queryResponse").getJSONObject("result").getJSONObject("records");
                                 if (records.getString("type").equals("Book__c")) {
-                                    book = new Book(records.getString("Id"), records.getString("Name"),records.getString("Book_Number__c"),records.getString("Book_Name_in_Tamil__c"),records.getString("Status__c"));
-                                    member = new Member(records.getString("Id"),records.getString("Name"),records.getString("Name__c"),records.getString("Email_Id__c"),records.getString("Contact_Number__c"),records.getString("Status__c"),records.getString("Students_Name__c"));
-                                    txtVUserFullName.setText(member.getFullName());
-                                }
-                            }catch (Exception ex){
+                                    book = new Book(records.getString("Id"), records.getString("Name"), records.getString("Book_Number__c"), records.getString("Book_Name_in_Tamil__c"), records.getString("Status__c"));
+                                    txtvbar1.setText(book.getId());
 
+                                    btnSave.setEnabled(true);
+                                }
+                            } catch (Exception ex) {
+                                AlertDialog alertDialog = new AlertDialog.Builder(ScanActivity.this).create();
+                                alertDialog.setTitle("Oppssssss...");
+                                alertDialog.setMessage("Something went wrong!");
+                                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        });
+                                alertDialog.show();
                             }
                         }
 
                         @Override
                         public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                             super.onFailure(statusCode, headers, throwable, errorResponse);
+                            AlertDialog alertDialog = new AlertDialog.Builder(ScanActivity.this).create();
+                            alertDialog.setTitle("Failed" + statusCode);
+                            alertDialog.setMessage("failed");
+                            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                        }
+                                    });
+                            alertDialog.show();
                         }
                     });
-                }catch (Exception ex){
-
+                } catch (Exception ex) {
+                    AlertDialog alertDialog = new AlertDialog.Builder(ScanActivity.this).create();
+                    alertDialog.setTitle("Oppssssss...");
+                    alertDialog.setMessage("Something went wrong!");
+                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                    alertDialog.show();
                 }
 
             }
         }
     }
 
-    public void clearAll(){
-        member=null;
+    /**
+     * Cleanup all the fields and data
+     */
+    public void clearAll() {
+        member = null;
         book = null;
     }
 }

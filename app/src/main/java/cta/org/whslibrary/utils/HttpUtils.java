@@ -17,6 +17,8 @@
 package cta.org.whslibrary.utils;
 
 import android.content.Context;
+import android.util.Log;
+
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
@@ -29,19 +31,24 @@ import cz.msebera.android.httpclient.message.BasicHeader;
 import cz.msebera.android.httpclient.protocol.HTTP;
 
 public class HttpUtils {
-    private static final String BASE_URL = "http://172.18.0.1:8280/";
+    private static final String BASE_URL = "http://10.0.0.30:8280/";
     private static AsyncHttpClient client = new AsyncHttpClient();
-    public static void post(Context context, String payload, AsyncHttpResponseHandler responseHandler) throws Exception {
+
+    public static void postMember(Context context, String payload, AsyncHttpResponseHandler responseHandler) throws Exception {
             StringEntity entity = new StringEntity(payload);
             entity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
             client.post(context, BASE_URL+"members/member", entity, "application/json", responseHandler);
+    }
+    public static void postLending(Context context, String payload, AsyncHttpResponseHandler responseHandler) throws Exception {
+        StringEntity entity = new StringEntity(payload);
+        entity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+        client.post(context, BASE_URL+"lending/new", entity, "application/json", responseHandler);
     }
 
     public static void getMember(Context context, String payload, AsyncHttpResponseHandler responseHandler) throws Exception{
         String endpoint = BASE_URL+"members/member/"+URLEncoder.encode(payload,"UTF-8").replace("+", "%20");
         client.setURLEncodingEnabled(false);
         client.get(context, endpoint ,responseHandler);
-
     }
     public static void getBook(Context context, String payload, AsyncHttpResponseHandler responseHandler) throws Exception{
         String endpoint = BASE_URL+"books/book/"+payload;
@@ -50,17 +57,23 @@ public class HttpUtils {
 
     }
 
+    public static void postLending(String payload){
+        Log.d("Mylog",payload);
+    }
+
+
+
     public static String generatePayload(String fullName, String email, String mobile, String student){
         return "{\"member\": {\"Name\": \""+fullName+"\",\"Email\": \""+email+"\",\"Mobile\": \""+mobile+"\",\"Status\": \"Active\",\"Students\": \""+student+"\"}}";
     }
 
     public static String generateLendingPayload(String bookid, String memberid){
         Calendar c = Calendar.getInstance();
-        SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         String lendingDate = df.format(c.getTime());
         c.add(Calendar.WEEK_OF_MONTH,2);
-        String returndate= df.format(c.getTime());;
-        return "{\"LendBook\": {\"BookID\": \""+bookid+"\",\"MemberId\": \""+memberid+"\",\"LendingDate\": \""+lendingDate+"\",\"Status\": \"Checked Out\",\"ReturnDate\": \""+returndate+"\"}}";
+        String returnDate= df.format(c.getTime());;
+        return "{\"LendBook\": {\"BookID\": \""+bookid+"\",\"MemberId\": \""+memberid+"\",\"LendingDate\": \""+lendingDate+"\",\"Status\": \"Checked Out\",\"ReturnDate\": \""+returnDate+"\"}}";
 
     }
 }
