@@ -17,7 +17,6 @@
 package cta.org.whslibrary.utils;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -56,12 +55,6 @@ public class HttpUtils {
         client.get(context, endpoint ,responseHandler);
 
     }
-
-    public static void postLending(String payload){
-        Log.d("Mylog",payload);
-    }
-
-
 
     public static String generatePayload(String fullName, String email, String mobile, String student){
         return "{\"member\": {\"Name\": \""+fullName+"\",\"Email\": \""+email+"\",\"Mobile\": \""+mobile+"\",\"Status\": \"Active\",\"Students\": \""+student+"\"}}";

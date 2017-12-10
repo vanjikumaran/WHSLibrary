@@ -116,40 +116,6 @@ public class ScanActivity extends AppCompatActivity {
                             }
                         });
 
-
-//                        HttpUtils.postLending(ScanActivity.this, payload, new JsonHttpResponseHandler() {
-//                            @Override
-//                            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-//                                super.onSuccess(statusCode, headers, response);
-//                                AlertDialog alertDialog = new AlertDialog.Builder(ScanActivity.this).create();
-//                                alertDialog.setTitle("Lending Added " + statusCode);
-//                                alertDialog.setMessage(response.toString());
-//                                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-//                                        new DialogInterface.OnClickListener() {
-//                                            public void onClick(DialogInterface dialog, int which) {
-//                                                dialog.dismiss();
-//                                            }
-//                                        });
-//                                alertDialog.show();
-//
-//                            }
-//
-//                            @Override
-//                            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-//                                super.onFailure(statusCode, headers, responseString, throwable);
-//                                AlertDialog alertDialog = new AlertDialog.Builder(ScanActivity.this).create();
-//                                alertDialog.setTitle("Failed" + statusCode);
-//                                alertDialog.setMessage("failed");
-//                                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-//                                        new DialogInterface.OnClickListener() {
-//                                            public void onClick(DialogInterface dialog, int which) {
-//                                                dialog.dismiss();
-//                                            }
-//                                        });
-//                                alertDialog.show();
-//                            }
-//                        });
-
                     } catch (Exception ex) {
                         AlertDialog alertDialog = new AlertDialog.Builder(ScanActivity.this).create();
                         alertDialog.setTitle("Oppssssss...");
